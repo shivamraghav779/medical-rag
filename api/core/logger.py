@@ -332,9 +332,17 @@ def _get_file_handler() -> logging.Handler:
     if _file_handler_instance is None:
         with _handler_init_lock:
             if _file_handler_instance is None:
-                handler = DailyRotatingJSONFileHandler(LOG_DIR)
-                handler.setFormatter(JSONFormatter())
-                _file_handler_instance = handler
+                log_dir = LOG_DIR
+                # Vercel/Lambda: only /tmp is writable.
+                if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+                    log_dir = Path("/tmp/logs")
+                try:
+                    handler = DailyRotatingJSONFileHandler(log_dir)
+                    handler.setFormatter(JSONFormatter())
+                    _file_handler_instance = handler
+                except OSError:
+                    # Read-only filesystem — fall back to console-only.
+                    _file_handler_instance = logging.NullHandler()
     return _file_handler_instance
 
 

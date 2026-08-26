@@ -1,12 +1,26 @@
-from functools import lru_cache
+from __future__ import annotations
 
-from pydantic import Field
-from pydantic_settings import BaseSettings
+import os
+from functools import lru_cache
+from typing import Any
+
+from pydantic import Field, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from api.core.constants import CLINICAL_DISCLAIMER, EMERGENCY_TERMS
 
 
+def _is_serverless() -> bool:
+    return bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
+
+
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
     groq_api_key: str
     pinecone_api_key: str
     pinecone_index: str = "rag-platform"
@@ -56,6 +70,7 @@ class Settings(BaseSettings):
     jwt_expire_minutes: int = 60 * 24 * 7  # 7 days
 
     # Persistent storage (SQLite default; use postgresql+asyncpg:// for production)
+    # On Vercel/Lambda the FS is read-only except /tmp — defaults flip there.
     database_url: str = "sqlite+aiosqlite:///./data/clinical_rag.db"
     database_path: str = "./data/clinical_rag.db"
 
@@ -68,13 +83,23 @@ class Settings(BaseSettings):
     # requeued — must survive HMR/Strict Mode reconnects. Minimum 5s.
     agent_disconnect_grace_seconds: int = 5
 
-    class Config:
-        env_file = ".env"
+    @model_validator(mode="after")
+    def _serverless_sqlite_defaults(self) -> Settings:
+        if _is_serverless() and self.database_path.startswith("./"):
+            self.database_path = "/tmp/clinical_rag.db"
+            self.database_url = "sqlite+aiosqlite:////tmp/clinical_rag.db"
+        return self
 
 
 @lru_cache()
-def get_settings():
+def get_settings() -> Settings:
     return Settings()
 
 
-settings = get_settings()
+def __getattr__(name: str) -> Any:
+    """Lazy ``settings`` so importing this module does not require env vars
+    until something actually reads configuration (avoids hard-crash on cold
+    start before env is wired; still fails loudly on first use)."""
+    if name == "settings":
+        return get_settings()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

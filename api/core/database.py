@@ -18,7 +18,11 @@ class Base(DeclarativeBase):
 
 settings = get_settings()
 _db_path = Path(settings.database_path)
-_db_path.parent.mkdir(parents=True, exist_ok=True)
+try:
+    _db_path.parent.mkdir(parents=True, exist_ok=True)
+except OSError:
+    # Serverless read-only FS except /tmp — Settings already remaps path there.
+    pass
 
 engine = create_async_engine(
     settings.database_url,
