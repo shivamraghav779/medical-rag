@@ -128,7 +128,7 @@ class ClinicalContext(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Document parsing (Unstructured)
+# Document parsing (PyMuPDF)
 # ---------------------------------------------------------------------------
 
 class ParsedTable(BaseModel):
@@ -146,8 +146,8 @@ class ParsedDocument(BaseModel):
     page_count: int = 0
     element_count: int = 0
     has_tables: bool = False
-    strategy: str = "auto"  # hi_res | fast | auto | pymupdf_fallback
-    parse_method: str = "unstructured"  # unstructured | pymupdf
+    strategy: str = "pymupdf"  # pymupdf (primary)
+    parse_method: str = "pymupdf"  # pymupdf
     # Narrative blocks interleaved with table/section markers for chunking.
     structured_blocks: List[Dict[str, Any]] = Field(default_factory=list)
 

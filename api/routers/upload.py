@@ -125,7 +125,7 @@ class UploadRouter:
 
         doc_name = file.filename or f"document-{uuid.uuid4()}.pdf"
         doc_id = str(uuid.uuid4())
-        parse_method = "unstructured"
+        parse_method = "pymupdf"
 
         try:
             parsed = await asyncio.to_thread(document_parser.parse, pdf_bytes, doc_type)

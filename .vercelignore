@@ -1,0 +1,90 @@
+# Virtual environments
+.venv
+.venv/
+.venv-bundle-check/
+venv/
+env/
+ENV/
+
+# Python caches / build artifacts
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+**/*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Git
+.git/
+.gitignore
+
+# Frontend source (CDN serves built assets separately; do not ship src)
+frontend/node_modules/
+frontend/src/
+frontend/public/
+frontend/index.html
+frontend/package.json
+frontend/package-lock.json
+frontend/tsconfig.json
+frontend/tsconfig*.json
+frontend/vite.config.ts
+frontend/vite.config.*
+frontend/eslint.config.*
+frontend/.env*
+# Keep frontend/dist out of the Python serverless bundle
+frontend/dist/
+
+# Widget source (serve widget/dist via StaticFiles if needed; exclude source)
+widget/node_modules/
+widget/src/
+widget/package.json
+widget/package-lock.json
+widget/tsconfig.json
+widget/vite.config.*
+widget/index.html
+# Keep widget/dist — served by FastAPI StaticFiles at /widget
+
+# Logs & local data
+logs/
+*.log
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Scripts, tests, eval (not needed at runtime)
+scripts/
+tests/
+**/test_*.py
+**/*_test.py
+**/tests/
+pytest.ini
+.pytest_cache/
+.coverage
+htmlcov/
+requirements-dev.txt
+BUNDLE_AUDIT.md
+
+# ML / HuggingFace / torch model caches (must never ship)
+.cache/
+.cache/**
+**/huggingface/
+**/.huggingface/
+torch/
+transformers/
+**/sentence_transformers/
+**/models--*/
+*.pt
+*.bin
+*.safetensors
+*.onnx
+
+# IDE / OS
+.idea/
+.vscode/
+.cursor/
+.DS_Store
+*.swp
