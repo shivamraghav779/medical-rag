@@ -9,6 +9,7 @@ import {
   submitMessageFeedback,
 } from "../api/client";
 import { getStoredToken } from "../api/auth";
+import { wsUrl } from "../config";
 import { useSession } from "../context/SessionContext";
 import type {
   AgentStatusEvent,
@@ -488,9 +489,8 @@ export default function ChatPage() {
         handoffWsRef.current = null;
       }
       const token = getStoredToken();
-      const proto = window.location.protocol === "https:" ? "wss" : "ws";
       const ws = new WebSocket(
-        `${proto}://${window.location.host}/ws/chat/${sid}?token=${encodeURIComponent(token || "")}`,
+        `${wsUrl(`/ws/chat/${sid}`)}?token=${encodeURIComponent(token || "")}`,
       );
       handoffWsRef.current = ws;
       ws.onmessage = (ev) => {

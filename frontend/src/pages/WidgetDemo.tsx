@@ -1,6 +1,7 @@
 import { Check, Copy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { getStoredToken } from "../api/auth";
+import { API_BASE_URL, widgetScriptUrl } from "../config";
 
 // Minimal line-based highlighter for this one fixed shape (<script ...
 // attr="value" ...></script>) — not a general syntax highlighter, so no new
@@ -79,12 +80,13 @@ export default function WidgetDemo() {
   const [widgetError, setWidgetError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const token = getStoredToken() || "";
-  const apiUrl = window.location.origin;
+  const apiUrl = API_BASE_URL || window.location.origin;
+  const scriptSrc = widgetScriptUrl();
 
   const embedCode = useMemo(
     () =>
       `<script
-  src="${apiUrl}/widget/chatbot.js"
+  src="${scriptSrc}"
   data-api-url="${apiUrl}"
   data-api-key="${token || "PASTE_YOUR_JWT_HERE"}"
   data-clinic-name="${clinicName}"
@@ -92,7 +94,7 @@ export default function WidgetDemo() {
   data-primary-color="${primaryColor}"
   data-position="bottom-right"
 ></script>`,
-    [apiUrl, token, clinicName, specialty, primaryColor],
+    [scriptSrc, apiUrl, token, clinicName, specialty, primaryColor],
   );
 
   const pushConfig = () => {
@@ -115,7 +117,7 @@ export default function WidgetDemo() {
         return;
       }
       try {
-        await loadWidgetScript(`${apiUrl}/widget/chatbot.js`);
+        await loadWidgetScript(scriptSrc);
         if (cancelled) return;
         document.getElementById("clinical-rag-chatbot-host")?.remove();
         const Ctor = window.ClinicalRagChatbot?.ClinicalChatWidget;
@@ -145,7 +147,7 @@ export default function WidgetDemo() {
     };
     // Mount once with session token; live config updates go via postMessage.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiUrl, token]);
+  }, [apiUrl, scriptSrc, token]);
 
   useEffect(() => {
     pushConfig();

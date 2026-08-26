@@ -13,7 +13,6 @@ __pycache__/
 *.egg-info/
 **/*.egg-info/
 .eggs/
-dist/
 build/
 *.egg
 
@@ -34,10 +33,9 @@ frontend/vite.config.ts
 frontend/vite.config.*
 frontend/eslint.config.*
 frontend/.env*
-# Keep frontend/dist out of the Python serverless bundle
 frontend/dist/
 
-# Widget source (serve widget/dist via StaticFiles if needed; exclude source)
+# Widget source (dist is served by FastAPI StaticFiles at /widget)
 widget/node_modules/
 widget/src/
 widget/package.json
@@ -45,7 +43,6 @@ widget/package-lock.json
 widget/tsconfig.json
 widget/vite.config.*
 widget/index.html
-# Keep widget/dist — served by FastAPI StaticFiles at /widget
 
 # Logs & local data
 logs/

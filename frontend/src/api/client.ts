@@ -5,6 +5,7 @@ import {
   toApiError,
 } from "./errors";
 import { authHeaders, clearStoredToken } from "./auth";
+import { apiUrl } from "../config";
 import type {
   AnalyticsResponse,
   ChatEvent,
@@ -56,13 +57,13 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 export async function fetchHealth(): Promise<HealthResponse> {
-  const res = await fetch("/health");
+  const res = await fetch(apiUrl("/health"));
   if (!res.ok) throw await parseApiError(res);
   return res.json();
 }
 
 export async function login(email: string, password: string): Promise<AuthResponse> {
-  const res = await fetch("/api/auth/login", {
+  const res = await fetch(apiUrl("/api/auth/login"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -76,7 +77,7 @@ export async function register(
   password: string,
   fullName: string,
 ): Promise<AuthResponse> {
-  const res = await fetch("/api/auth/register", {
+  const res = await fetch(apiUrl("/api/auth/register"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password, full_name: fullName }),
@@ -86,19 +87,19 @@ export async function register(
 }
 
 export async function fetchMe(): Promise<User> {
-  return requestJson<User>("/api/auth/me");
+  return requestJson<User>(apiUrl("/api/auth/me"));
 }
 
 export async function fetchTokenUsage(): Promise<TokenUsageSummary> {
-  return requestJson<TokenUsageSummary>("/api/auth/usage");
+  return requestJson<TokenUsageSummary>(apiUrl("/api/auth/usage"));
 }
 
 export async function fetchConversations(): Promise<ConversationSummary[]> {
-  return requestJson<ConversationSummary[]>("/api/conversations");
+  return requestJson<ConversationSummary[]>(apiUrl("/api/conversations"));
 }
 
 export async function createConversation(title = "New conversation"): Promise<ConversationSummary> {
-  return requestJson<ConversationSummary>("/api/conversations", {
+  return requestJson<ConversationSummary>(apiUrl("/api/conversations"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title }),
@@ -106,11 +107,11 @@ export async function createConversation(title = "New conversation"): Promise<Co
 }
 
 export async function fetchConversation(id: string): Promise<ConversationDetail> {
-  return requestJson<ConversationDetail>(`/api/conversations/${id}`);
+  return requestJson<ConversationDetail>(apiUrl(`/api/conversations/${id}`));
 }
 
 export async function deleteConversation(id: string): Promise<void> {
-  const res = await apiFetch(`/api/conversations/${id}`, { method: "DELETE" });
+  const res = await apiFetch(apiUrl(`/api/conversations/${id}`), { method: "DELETE" });
   if (!res.ok) throw await parseApiError(res);
 }
 
@@ -129,7 +130,7 @@ export async function submitMessageFeedback(
   comment?: string | null;
   correct_answer?: string | null;
 }> {
-  return requestJson(`/api/conversations/${conversationId}/messages/${messageId}/feedback`, {
+  return requestJson(apiUrl(`/api/conversations/${conversationId}/messages/${messageId}/feedback`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -137,16 +138,16 @@ export async function submitMessageFeedback(
 }
 
 export async function fetchDocuments(): Promise<DocumentInfo[]> {
-  return requestJson<DocumentInfo[]>("/api/documents");
+  return requestJson<DocumentInfo[]>(apiUrl("/api/documents"));
 }
 
 export async function deleteDocument(docId: string): Promise<void> {
-  const res = await apiFetch(`/api/documents/${docId}`, { method: "DELETE" });
+  const res = await apiFetch(apiUrl(`/api/documents/${docId}`), { method: "DELETE" });
   if (!res.ok) throw await parseApiError(res);
 }
 
 export async function fetchAnalytics(): Promise<AnalyticsResponse> {
-  return requestJson<AnalyticsResponse>("/api/analytics");
+  return requestJson<AnalyticsResponse>(apiUrl("/api/analytics"));
 }
 
 export async function fetchFaqs(opts?: {
@@ -161,14 +162,14 @@ export async function fetchFaqs(opts?: {
   if (opts?.sort) params.set("sort", opts.sort);
   if (opts?.query_type) params.set("query_type", opts.query_type);
   const qs = params.toString();
-  return requestJson<FaqListResponse>(`/api/faq${qs ? `?${qs}` : ""}`);
+  return requestJson<FaqListResponse>(apiUrl(`/api/faq${qs ? `?${qs}` : ""}`));
 }
 
 export async function requestHandoff(
   conversationId: string,
   reason = "patient_request",
 ): Promise<{ conversation_id: string; state: string; queue_position: number; reason: string }> {
-  return requestJson("/api/handoff/request", {
+  return requestJson(apiUrl("/api/handoff/request"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ conversation_id: conversationId, reason }),
@@ -178,13 +179,13 @@ export async function requestHandoff(
 export async function cancelHandoff(
   conversationId: string,
 ): Promise<{ conversation_id: string; state: string }> {
-  return requestJson(`/api/handoff/cancel/${conversationId}`, {
+  return requestJson(apiUrl(`/api/handoff/cancel/${conversationId}`), {
     method: "POST",
   });
 }
 
 export async function fetchHandoffQueue(): Promise<QueueStateResponse> {
-  return requestJson<QueueStateResponse>("/api/handoff/queue");
+  return requestJson<QueueStateResponse>(apiUrl("/api/handoff/queue"));
 }
 
 export async function resolveHandoff(
@@ -201,7 +202,7 @@ export async function resolveHandoff(
   agent_id?: string | null;
   resolution?: Record<string, unknown> | null;
 }> {
-  return requestJson(`/api/handoff/resolve/${sessionId}`, {
+  return requestJson(apiUrl(`/api/handoff/resolve/${sessionId}`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -213,11 +214,11 @@ export async function takeNextPatient(): Promise<{
   assigned: boolean;
   message: string;
 }> {
-  return requestJson("/api/handoff/take-next", { method: "POST" });
+  return requestJson(apiUrl("/api/handoff/take-next"), { method: "POST" });
 }
 
 export async function registerAgent(): Promise<{ agent_id: string; status: string; online: boolean }> {
-  return requestJson("/api/agents/register", {
+  return requestJson(apiUrl("/api/agents/register"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({}),
@@ -225,22 +226,22 @@ export async function registerAgent(): Promise<{ agent_id: string; status: strin
 }
 
 export async function fetchAgentStatuses(): Promise<{ agents: AgentStatusItem[] }> {
-  return requestJson("/api/agents/status");
+  return requestJson(apiUrl("/api/agents/status"));
 }
 
 export async function fetchHandoffConversation(sessionId: string): Promise<ConversationDetail> {
-  return requestJson<ConversationDetail>(`/api/handoff/conversation/${sessionId}`);
+  return requestJson<ConversationDetail>(apiUrl(`/api/handoff/conversation/${sessionId}`));
 }
 
 export async function fetchUsers(): Promise<{ users: UserListItem[] }> {
-  return requestJson("/api/admin/users");
+  return requestJson(apiUrl("/api/admin/users"));
 }
 
 export async function promoteUser(
   userId: string,
   role: string,
 ): Promise<{ user_id: string; email: string; role: string }> {
-  return requestJson("/api/admin/promote", {
+  return requestJson(apiUrl("/api/admin/promote"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ user_id: userId, role }),
@@ -250,11 +251,11 @@ export async function promoteUser(
 export async function forceResolveHandoff(
   sessionId: string,
 ): Promise<{ success: boolean; session_id: string; agent_id?: string | null }> {
-  return requestJson(`/api/handoff/force-resolve/${sessionId}`, { method: "DELETE" });
+  return requestJson(apiUrl(`/api/handoff/force-resolve/${sessionId}`), { method: "DELETE" });
 }
 
 export async function enhanceQuery(query: string, specialty?: string): Promise<string> {
-  const body = await requestJson<{ enhanced_query: string }>("/api/chat/tools/enhance-query", {
+  const body = await requestJson<{ enhanced_query: string }>(apiUrl("/api/chat/tools/enhance-query"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query, specialty }),
@@ -290,7 +291,7 @@ export async function uploadDocument(
     }
   });
 
-  return requestJson<UploadResponse>("/api/upload", { method: "POST", body: form });
+  return requestJson<UploadResponse>(apiUrl("/api/upload"), { method: "POST", body: form });
 }
 
 export interface StreamChatOptions {
@@ -320,7 +321,7 @@ export async function streamChat({
 
   let res: Response;
   try {
-    res = await apiFetch("/api/chat", {
+    res = await apiFetch(apiUrl("/api/chat"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

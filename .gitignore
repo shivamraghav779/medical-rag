@@ -10,7 +10,6 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -25,6 +24,12 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+# Keep Vite build outputs out of git except the widget bundle the API serves
+dist/
+!widget/dist/
+!widget/dist/**
+frontend/dist/
 
 # PyInstaller
 #   Usually these files are written by a python script from a template

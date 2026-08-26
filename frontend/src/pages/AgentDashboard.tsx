@@ -9,6 +9,7 @@ import {
   takeNextPatient,
 } from "../api/client";
 import { getStoredToken } from "../api/auth";
+import { wsUrl } from "../config";
 import { useAuth } from "../context/AuthContext";
 import ErrorBanner from "../components/ui/ErrorBanner";
 import EventDivider from "../components/chat/EventDivider";
@@ -350,9 +351,8 @@ export default function AgentDashboard() {
       if (stopped) return;
       setReconnecting(reconnectAttempts > 0);
       const token = getStoredToken();
-      const proto = window.location.protocol === "https:" ? "wss" : "ws";
       const ws = new WebSocket(
-        `${proto}://${window.location.host}/ws/agent/${agentId}?token=${encodeURIComponent(token || "")}`,
+        `${wsUrl(`/ws/agent/${agentId}`)}?token=${encodeURIComponent(token || "")}`,
       );
       socket = ws;
       wsRef.current = ws;

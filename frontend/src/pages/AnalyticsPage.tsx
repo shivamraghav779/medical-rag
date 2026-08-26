@@ -6,6 +6,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { getStoredToken } from "../api/auth";
+import { wsUrl } from "../config";
 import {
   fetchAnalytics,
   fetchAgentStatuses,
@@ -146,9 +147,8 @@ export default function AnalyticsPage() {
     if (tab !== "queue") return;
     void loadQueueRest();
     const token = getStoredToken();
-    const proto = window.location.protocol === "https:" ? "wss" : "ws";
     const ws = new WebSocket(
-      `${proto}://${window.location.host}/ws/admin/queue?token=${encodeURIComponent(token || "")}`,
+      `${wsUrl("/ws/admin/queue")}?token=${encodeURIComponent(token || "")}`,
     );
     wsRef.current = ws;
     ws.onmessage = (ev) => {

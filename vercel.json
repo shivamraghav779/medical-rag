@@ -10,6 +10,30 @@
     {
       "source": "/api/(.*)",
       "destination": "/api/main.py"
+    },
+    {
+      "source": "/health",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/widget/(.*)",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/ws/(.*)",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/docs",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "/api/main.py"
+    },
+    {
+      "source": "/",
+      "destination": "/api/main.py"
     }
   ]
 }
