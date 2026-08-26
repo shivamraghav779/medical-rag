@@ -1,0 +1,9 @@
+{
+  "name": "rag-platform",
+  "private": true,
+  "scripts": {
+    "build:widget": "npm --prefix widget run build",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:frontend": "npm --prefix frontend run build"
+  }
+}

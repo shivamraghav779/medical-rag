@@ -1,0 +1,62 @@
+[
+  {
+    "question": "What is the usual adult oral dose of metformin for type 2 diabetes initiation?",
+    "ground_truth": "Metformin is typically started at 500 mg once or twice daily with meals, titrated based on glycemic response and tolerability, with a common maximum around 2000 mg/day depending on formulation and guidelines.",
+    "doc_names": null,
+    "category": "drug_dosing"
+  },
+  {
+    "question": "Is there a clinically significant interaction between warfarin and aspirin?",
+    "ground_truth": "Yes. Warfarin combined with aspirin increases bleeding risk and is generally classified as a MAJOR interaction requiring avoidance or careful specialist oversight with monitoring.",
+    "doc_names": null,
+    "category": "drug_interaction"
+  },
+  {
+    "question": "What are the diagnostic criteria for ST-elevation myocardial infarction?",
+    "ground_truth": "STEMI diagnosis is supported by clinical presentation of acute coronary syndrome plus ECG criteria for ST-segment elevation in contiguous leads (or equivalent new LBBB findings per guideline definitions) with urgent reperfusion indicated.",
+    "doc_names": null,
+    "category": "diagnosis"
+  },
+  {
+    "question": "How should community-acquired pneumonia be managed in adults according to first-line protocols?",
+    "ground_truth": "First-line CAP management includes severity assessment, appropriate empiric antibiotics based on setting and risk factors, supportive care, and reassessment for clinical response per clinical guidelines/protocols.",
+    "doc_names": null,
+    "category": "treatment_protocol"
+  },
+  {
+    "question": "Hemoglobin 7.2 g/dL — is this within normal range for an adult?",
+    "ground_truth": "A hemoglobin of 7.2 g/dL is below typical adult normal ranges and indicates anemia; severity and urgency depend on clinical context, symptoms, and local reference intervals.",
+    "doc_names": null,
+    "category": "lab_interpretation"
+  },
+  {
+    "question": "Creatinine 2.1 mg/dL in an adult — interpret this lab value.",
+    "ground_truth": "Creatinine 2.1 mg/dL is elevated relative to usual adult reference ranges and suggests impaired kidney function; correlate with baseline, eGFR, and clinical status.",
+    "doc_names": null,
+    "category": "lab_interpretation"
+  },
+  {
+    "question": "What is the mechanism of action of atorvastatin?",
+    "ground_truth": "Atorvastatin inhibits HMG-CoA reductase, reducing hepatic cholesterol synthesis and upregulating LDL receptors, which lowers circulating LDL cholesterol.",
+    "doc_names": null,
+    "category": "drug_dosing"
+  },
+  {
+    "question": "Can metformin and iodinated contrast be used together?",
+    "ground_truth": "Metformin with iodinated contrast is a monitored interaction due to risk of metformin-associated lactic acidosis in the setting of contrast-related kidney injury; hold/restart timing depends on renal function and local protocol.",
+    "doc_names": null,
+    "category": "drug_interaction"
+  },
+  {
+    "question": "What ICD/DSM-style criteria are used to diagnose major depressive disorder?",
+    "ground_truth": "Major depressive disorder requires a qualifying number of depressive symptoms over a defined duration with clinically significant distress/impairment, excluding better explanations such as substances or other medical conditions per DSM criteria.",
+    "doc_names": null,
+    "category": "diagnosis"
+  },
+  {
+    "question": "What is first-line treatment for acute asthma exacerbation in adults?",
+    "ground_truth": "Acute asthma exacerbation first-line care typically includes inhaled short-acting beta-agonists, systemic corticosteroids when indicated, oxygen as needed, and escalation per severity according to treatment protocols/guidelines.",
+    "doc_names": null,
+    "category": "treatment_protocol"
+  }
+]
