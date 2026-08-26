@@ -1,0 +1,298 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "./styles/tokens.css";
+
+@layer base {
+  body {
+    @apply min-h-screen bg-mesh-gradient font-sans text-oky-text antialiased;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-oky-purple/20;
+  }
+
+  /* Every interactive element gets a clear, consistent focus ring — the
+     browser default outline is too subtle, and only form inputs had a
+     custom one before this (UX_AUDIT.md: accessibility pass). */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid theme("colors.oky.purple");
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply border border-white/60 bg-white/70 shadow-glass backdrop-blur-xl;
+  }
+
+  .glass-card {
+    @apply rounded-2xl border border-white/60 bg-white/75 shadow-card backdrop-blur-xl;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-btn-gradient px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-oky-border bg-white/80 px-4 py-2 text-sm font-medium text-oky-text shadow-sm transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm text-oky-muted transition hover:bg-white/60 hover:text-oky-text;
+  }
+
+  .input-field {
+    @apply w-full rounded-xl border border-oky-border bg-white/90 px-4 py-2.5 text-sm text-oky-text placeholder:text-oky-muted shadow-sm focus:border-oky-purple/40 focus:outline-none focus:ring-2 focus:ring-oky-purple/20;
+  }
+
+  .card {
+    @apply glass-card;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .chip {
+    @apply cursor-pointer rounded-full border border-oky-border bg-white/80 px-4 py-2 text-sm text-oky-text-secondary shadow-sm transition hover:border-oky-purple/30 hover:bg-white hover:text-oky-purple hover:shadow-md;
+  }
+
+  .nav-icon {
+    @apply flex h-11 w-11 items-center justify-center rounded-xl text-white/80 transition hover:bg-white/15 hover:text-white;
+  }
+
+  /* Solid white pill + dark icon reads as "impossible to miss" against the
+     mid-tone teal gradient — the previous translucent-white overlay was
+     too close in value to the sidebar itself to register at a glance. */
+  .nav-icon-active {
+    @apply bg-white text-oky-purple-dark shadow-md;
+  }
+}
+
+.prose-chat {
+  font-size: 15px;
+  line-height: 1.75;
+  @apply text-oky-text;
+}
+
+.prose-chat p {
+  @apply mb-3 last:mb-0;
+}
+
+.prose-chat ul,
+.prose-chat ol {
+  @apply mb-3 ml-4 list-disc;
+}
+
+.prose-chat ol {
+  @apply list-decimal;
+}
+
+.prose-chat code {
+  @apply rounded-lg bg-oky-purple/5 px-1.5 py-0.5 text-sm text-oky-purple-dark;
+}
+
+.prose-chat strong {
+  @apply font-semibold;
+}
+
+.prose-chat a {
+  @apply text-oky-purple underline;
+}
+
+.prose-chat-user,
+.prose-chat-user p {
+  @apply text-white;
+}
+
+/* AI thinking orb — inspired by personal assistant orb animations */
+.thinking-orb {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thinking-orb--compact {
+  width: 36px;
+  height: 36px;
+}
+
+.thinking-orb__glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(13, 148, 136, 0.45) 0%,
+    rgba(15, 118, 110, 0.2) 40%,
+    transparent 70%
+  );
+  animation: orb-glow 2.4s ease-in-out infinite;
+}
+
+.thinking-orb--compact .thinking-orb__glow {
+  inset: -4px;
+}
+
+.thinking-orb__core {
+  position: relative;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 45%, #06b6d4 100%);
+  box-shadow:
+    0 0 24px rgba(13, 148, 136, 0.55),
+    0 0 48px rgba(6, 182, 212, 0.25),
+    inset 0 -4px 12px rgba(17, 94, 89, 0.35),
+    inset 0 4px 10px rgba(255, 255, 255, 0.35);
+  animation: orb-breathe 2s ease-in-out infinite;
+}
+
+.thinking-orb--compact .thinking-orb__core {
+  width: 20px;
+  height: 20px;
+  box-shadow:
+    0 0 12px rgba(13, 148, 136, 0.5),
+    inset 0 -2px 6px rgba(17, 94, 89, 0.3),
+    inset 0 2px 5px rgba(255, 255, 255, 0.3);
+}
+
+.thinking-orb__core-inner {
+  position: absolute;
+  inset: 18%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.15) 45%,
+    transparent 70%
+  );
+  animation: orb-shimmer 3s ease-in-out infinite;
+}
+
+.thinking-orb__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(13, 148, 136, 0.35);
+  animation: orb-ripple 2.4s cubic-bezier(0, 0.2, 0.4, 1) infinite;
+}
+
+.thinking-orb__ring--2 {
+  animation-delay: 0.8s;
+}
+
+.thinking-orb__ring--3 {
+  animation-delay: 1.6s;
+}
+
+.thinking-orb--compact .thinking-orb__ring--2,
+.thinking-orb--compact .thinking-orb__ring--3 {
+  display: none;
+}
+
+.thinking-orb__orbit {
+  position: absolute;
+  inset: -6px;
+  animation: orb-spin 4s linear infinite;
+}
+
+.thinking-orb__particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #5eead4, #06b6d4);
+  box-shadow: 0 0 8px rgba(94, 234, 212, 0.8);
+}
+
+.thinking-orb__particle:nth-child(1) {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.thinking-orb__particle:nth-child(2) {
+  bottom: 12%;
+  left: 8%;
+}
+
+.thinking-orb__particle:nth-child(3) {
+  bottom: 12%;
+  right: 8%;
+}
+
+@keyframes orb-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes orb-glow {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes orb-shimmer {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: rotate(12deg);
+  }
+}
+
+@keyframes orb-ripple {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@keyframes orb-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

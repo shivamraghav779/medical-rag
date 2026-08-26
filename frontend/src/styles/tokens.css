@@ -1,0 +1,126 @@
+/**
+ * Design tokens — reference doc + CSS custom properties.
+ *
+ * The source of truth for colors/typography/shadows/radius that Tailwind
+ * utilities consume is `tailwind.config.cjs` (theme.extend). This file:
+ *   1. Documents the *intended use* of each token, since Tailwind's config
+ *      alone doesn't explain "when do I use card-title vs section-heading."
+ *   2. Mirrors the same values as CSS custom properties for the handful of
+ *      places in this codebase that write raw CSS instead of Tailwind
+ *      utility classes (see index.css's .thinking-orb rules), so those
+ *      don't drift from the Tailwind theme as it evolves.
+ *
+ * Nothing in this file is required for existing Tailwind classes to work —
+ * it's additive. Imported once from index.css.
+ */
+
+:root {
+  /* ---- Color — mirrors tailwind.config.cjs theme.colors.oky ---- */
+  --color-bg: #f4f9f8;
+  --color-surface: #ffffff;
+  --color-border: rgba(13, 148, 136, 0.14);
+  --color-primary: #0d9488; /* oky-purple — deep clinical teal (renamed hex, not class) */
+  --color-primary-light: #5eead4;
+  --color-primary-dark: #115e59;
+  --color-text: #0f2b29;
+  --color-text-secondary: #475569;
+  --color-muted: #64748b;
+
+  /* ---- Semantic status — never reused for a different meaning ----
+   * success  → PASS, normal lab values, connected/online status
+   * warning  → WARN, borderline values, queue waiting/pending states
+   * danger   → FAIL, MAJOR drug interactions, emergency alerts
+   * info     → neutral informational notices
+   * agent    → a human agent is active (chat bubbles, HUMAN_ACTIVE banner
+   *             and input border) — the one place the old brand purple
+   *             remains, so "a person is here" reads as a distinct, warm
+   *             signal against the new teal/AI primary.
+   */
+  --color-success: #22c55e;
+  --color-success-bg: #f0fdf4;
+  --color-success-text: #15803d;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fffbeb;
+  --color-warning-text: #b45309;
+  --color-danger: #ef4444;
+  --color-danger-bg: #fef2f2;
+  --color-danger-text: #b91c1c;
+  --color-info: #3b82f6;
+  --color-info-bg: #eff6ff;
+  --color-info-text: #1d4ed8;
+  --color-agent: #7c3aed;
+  --color-agent-bg: #f5f3ff;
+  --color-agent-text: #5b21b6;
+
+  /* ---- Spacing scale ----
+   * This project uses Tailwind's default 4px-based spacing scale directly
+   * (p-1 = 4px … p-16 = 64px) rather than a custom one. The intent per step,
+   * so arbitrary pixel values stop creeping into components:
+   *   1 (4px)  → icon-to-label gaps, tightest inline spacing
+   *   2 (8px)  → gaps between related inline items (badge + icon)
+   *   3 (12px) → input vertical padding, compact card internal gaps
+   *   4 (16px) → input horizontal padding, default card internal gap
+   *   6 (24px) → card padding, standard section internal spacing
+   *   8 (32px) → gaps *between* sections/cards on a page
+   *   12 (48px)→ page-level top padding on wide empty states
+   *   16 (64px)→ hero/empty-state vertical breathing room
+   * Use these step names in review comments; don't introduce new arbitrary
+   * px values in components when one of these already fits.
+   */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* ---- Typography — mirrors tailwind.config.cjs theme.extend.fontSize ----
+   * page-title      → the h1 at the top of a page (e.g. "Document Library")
+   * section-heading → a named section within a page ("Query types")
+   * card-title      → the title inside an individual card/tile
+   * body            → default paragraph/answer text (15px, generous 1.65
+   *                   line-height — clinical text reads better with more
+   *                   air than typical web-app copy)
+   * label           → all-caps small labels above a value (stat tiles,
+   *                   table headers)
+   * caption         → timestamps, secondary metadata under a message
+   * code            → citation snippets, embed code, raw identifiers
+   */
+  --font-page-title: 1.75rem;
+  --font-section-heading: 1.25rem;
+  --font-card-title: 1rem;
+  --font-body: 0.9375rem;
+  --font-label: 0.75rem;
+  --font-caption: 0.6875rem;
+  --font-code: 0.8125rem;
+
+  /* ---- Border radius — one per role, per the brief ----
+   * card    → 16px (rounded-2xl) — page cards, panels, modals
+   * control → 12px (rounded-xl) — buttons and inputs share one radius so
+   *           they visually pair in a row (e.g. input + send button)
+   * badge   → 9999px (rounded-full) — status pills, chips, avatars
+   */
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+  --radius-badge: 9999px;
+
+  /* ---- Shadow tiers ----
+   * none  → flat elements (nested list rows, inline chips)
+   * card  → default resting elevation for any card/panel (shadow-card)
+   * modal → dropdowns, modals, popovers that float above page content
+   *         (shadow-modal)
+   * Clinical UI shouldn't reach for dramatic shadows — both tiers here are
+   * intentionally subtle; don't add a third, heavier tier.
+   */
+  --shadow-card: 0 4px 24px rgba(15, 43, 41, 0.06);
+  --shadow-modal: 0 12px 40px rgba(15, 43, 41, 0.16);
+
+  /* ---- Motion ----
+   * One duration, one easing, used everywhere: hover/focus/active state
+   * changes, tab switches, panel fades. Snappy, not jarring.
+   */
+  --transition-duration: 150ms;
+  --transition-easing: ease-in-out;
+}
