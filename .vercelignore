@@ -1,3 +1,7 @@
+# Applied to all Vercel projects in this monorepo.
+# Do NOT exclude frontend/ here — frontend-medical-rag rootDirectory is
+# "frontend" and needs those files. Backend excludes frontend via vercel.json.
+
 # Virtual environments
 .venv
 .venv/
@@ -20,22 +24,7 @@ build/
 .git/
 .gitignore
 
-# Frontend source (CDN serves built assets separately; do not ship src)
-frontend/node_modules/
-frontend/src/
-frontend/public/
-frontend/index.html
-frontend/package.json
-frontend/package-lock.json
-frontend/tsconfig.json
-frontend/tsconfig*.json
-frontend/vite.config.ts
-frontend/vite.config.*
-frontend/eslint.config.*
-frontend/.env*
-frontend/dist/
-
-# Widget source (dist is served by FastAPI StaticFiles at /widget)
+# Widget source only (keep widget/dist for FastAPI StaticFiles)
 widget/node_modules/
 widget/src/
 widget/package.json
