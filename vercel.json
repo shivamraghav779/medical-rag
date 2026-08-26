@@ -5,11 +5,5 @@
       "includeFiles": "{api/**,widget/dist/**}",
       "excludeFiles": "{.venv/**,venv/**,__pycache__/**,**/*.pyc,.git/**,frontend/**,widget/node_modules/**,widget/src/**,logs/**,data/**,scripts/**,tests/**,**/*.egg-info/**,.cache/**,**/huggingface/**,torch/**,transformers/**,**/*.db,**/*.sqlite,**/*.sqlite3}"
     }
-  },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/api/main.py"
-    }
-  ]
+  }
 }
