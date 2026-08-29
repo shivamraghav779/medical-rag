@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from functools import lru_cache
 from typing import Any
+from urllib.parse import parse_qs, urlencode, urlsplit, urlunsplit
 
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -12,6 +13,27 @@ from api.core.constants import CLINICAL_DISCLAIMER, EMERGENCY_TERMS
 
 def _is_serverless() -> bool:
     return bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
+
+
+# Query params Neon (and most managed-Postgres providers) put on their
+# connection strings for libpq/psycopg clients — asyncpg's connect() doesn't
+# accept them as kwargs and raises TypeError if they're left in the URL.
+# SSL is instead requested explicitly via connect_args (see database.py).
+_LIBPQ_ONLY_QUERY_PARAMS = {"sslmode", "channel_binding"}
+
+
+def _normalize_postgres_url(url: str) -> str:
+    """Rewrite a plain postgres:// / postgresql:// URL (as managed providers
+    hand out) into the asyncpg driver URL SQLAlchemy's async engine needs,
+    stripping libpq-only query params asyncpg doesn't understand."""
+    split = urlsplit(url)
+    scheme = split.scheme
+    if scheme in ("postgres", "postgresql"):
+        scheme = "postgresql+asyncpg"
+    query = parse_qs(split.query)
+    for param in _LIBPQ_ONLY_QUERY_PARAMS:
+        query.pop(param, None)
+    return urlunsplit((scheme, split.netloc, split.path, urlencode(query, doseq=True), split.fragment))
 
 
 class Settings(BaseSettings):
@@ -84,11 +106,22 @@ class Settings(BaseSettings):
     agent_disconnect_grace_seconds: int = 5
 
     @model_validator(mode="after")
-    def _serverless_sqlite_defaults(self) -> Settings:
-        if _is_serverless() and self.database_path.startswith("./"):
+    def _normalize_database_url(self) -> Settings:
+        # A real DATABASE_URL (e.g. Neon/managed Postgres) always wins — only
+        # fall back to serverless /tmp SQLite when nothing else was configured.
+        # (Previously this checked database_path instead of database_url, so
+        # setting DATABASE_URL to Postgres without also changing database_path
+        # got silently overwritten back to ephemeral /tmp SQLite on Vercel.)
+        if self.database_url.startswith(("postgres://", "postgresql://")):
+            self.database_url = _normalize_postgres_url(self.database_url)
+        elif _is_serverless() and self.database_url.startswith("sqlite") and self.database_path.startswith("./"):
             self.database_path = "/tmp/clinical_rag.db"
             self.database_url = "sqlite+aiosqlite:////tmp/clinical_rag.db"
         return self
+
+    @property
+    def is_postgres(self) -> bool:
+        return self.database_url.startswith("postgresql+asyncpg://")
 
 
 @lru_cache()

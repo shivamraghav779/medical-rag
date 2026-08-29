@@ -17,17 +17,26 @@ class Base(DeclarativeBase):
 
 
 settings = get_settings()
-_db_path = Path(settings.database_path)
-try:
-    _db_path.parent.mkdir(parents=True, exist_ok=True)
-except OSError:
-    # Serverless read-only FS except /tmp — Settings already remaps path there.
-    pass
+
+_connect_args: dict = {}
+if settings.is_postgres:
+    # Managed Postgres providers (Neon included) require SSL; the sslmode/
+    # channel_binding query params they hand out are libpq-only and were
+    # already stripped from the URL — asyncpg wants it passed here instead.
+    _connect_args["ssl"] = "require"
+else:
+    _db_path = Path(settings.database_path)
+    try:
+        _db_path.parent.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        # Serverless read-only FS except /tmp — Settings already remaps path there.
+        pass
 
 engine = create_async_engine(
     settings.database_url,
     echo=False,
     future=True,
+    connect_args=_connect_args,
 )
 
 AsyncSessionLocal = async_sessionmaker(
@@ -42,12 +51,21 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-def _ensure_sqlite_columns(connection) -> None:
-    """Additive migrations for existing SQLite databases (sync, for run_sync)."""
+def _ensure_additive_columns(connection) -> None:
+    """Additive migrations for columns added after a DB already exists (sync,
+    for run_sync) — works against either SQLite or Postgres."""
+    is_postgres = connection.engine.dialect.name == "postgresql"
 
     def _cols(table: str) -> set[str]:
-        rows = connection.execute(text(f"PRAGMA table_info({table})")).fetchall()
-        return {row[1] for row in rows}
+        if is_postgres:
+            rows = connection.execute(
+                text("SELECT column_name FROM information_schema.columns WHERE table_name = :t"),
+                {"t": table},
+            ).fetchall()
+        else:
+            rows = connection.execute(text(f"PRAGMA table_info({table})")).fetchall()
+            return {row[1] for row in rows}
+        return {row[0] for row in rows}
 
     user_cols = _cols("users")
     if "role" not in user_cols:
@@ -79,4 +97,4 @@ async def init_db() -> None:
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        await conn.run_sync(_ensure_sqlite_columns)
+        await conn.run_sync(_ensure_additive_columns)
