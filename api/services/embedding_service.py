@@ -36,7 +36,7 @@ class EmbeddingService:
         return await self._embed_many(texts, "search_document")
 
     async def get_embedding(self, text: str, input_type: str) -> list[float]:
-        """Back-compat alias used by DenseRetrieverAgent."""
+        """Back-compat alias used by RetrievalService.dense_retrieve_multi."""
         return await self._embed_one(text, input_type)
 
     async def get_embeddings_batch(self, texts: list[str], input_type: str) -> list[list[float]]:

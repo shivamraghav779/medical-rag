@@ -11,15 +11,11 @@ import asyncio
 import hashlib
 from typing import Any, AsyncGenerator, Optional
 
-from api.agents.dense_retriever import DenseRetrieverAgent
 from api.agents.drug_interaction_agent import DrugInteractionAgent
 from api.agents.emergency_detector import EmergencyDetectorAgent
-from api.agents.fusion_agent import FusionAgent
 from api.agents.generator import GeneratorAgent
 from api.agents.lab_reference_agent import LabReferenceAgent
 from api.agents.query_analyzer import QueryAnalyzerAgent
-from api.agents.reranker_agent import RerankerAgent
-from api.agents.sparse_retriever import SparseRetrieverAgent
 from api.core.config import Settings
 from api.core.exceptions import RedisReadException, RedisWriteException
 from api.core.logger import get_logger, log_exception
@@ -139,12 +135,6 @@ class Orchestrator:
 
         self.emergency_detector = EmergencyDetectorAgent(redis_service, settings)
         self.query_analyzer = QueryAnalyzerAgent(llm_service)
-        self.dense_retriever = DenseRetrieverAgent(
-            embedding_service, retrieval_service, settings
-        )
-        self.sparse_retriever = SparseRetrieverAgent(retrieval_service, settings)
-        self.fusion_agent = FusionAgent(retrieval_service)
-        self.reranker_agent = RerankerAgent(retrieval_service, redis_service, settings)
         self.drug_interaction_agent = DrugInteractionAgent(
             drug_service, llm_service, retrieval_service, settings
         )
@@ -162,10 +152,6 @@ class Orchestrator:
         for agent in (
             self.emergency_detector,
             self.query_analyzer,
-            self.dense_retriever,
-            self.sparse_retriever,
-            self.fusion_agent,
-            self.reranker_agent,
             self.drug_interaction_agent,
             self.lab_reference_agent,
         ):
@@ -425,33 +411,62 @@ class Orchestrator:
             session_dict = clinical_ctx.model_dump()
 
             # 11. Dense + Sparse + Fusion + Reranker
-            yield self.dense_retriever.emit_status("running")
-            dense_result = await self.dense_retriever.run(
+            # (relocated from DenseRetrieverAgent/SparseRetrieverAgent/FusionAgent/
+            # RerankerAgent into RetrievalService methods — same pipeline, same
+            # SSE agent_status event shape.)
+            yield {"type": "agent_status", "agent": "Dense Retriever", "status": "running", "output": None}
+            dense_chunks = await self._retrieval.dense_retrieve_multi(
                 sub_queries=analysis.expanded_queries,
+                top_k=self._settings.dense_top_k,
                 doc_filter=effective_doc_filter,
                 doc_type_filter=doc_type_filter,
             )
-            yield self.dense_retriever.emit_status("complete", dense_result.output)
+            yield {
+                "type": "agent_status",
+                "agent": "Dense Retriever",
+                "status": "complete",
+                "output": f"{len(dense_chunks)} candidates retrieved",
+            }
 
-            yield self.sparse_retriever.emit_status("running")
-            sparse_result = await self.sparse_retriever.run(query=query)
-            yield self.sparse_retriever.emit_status("complete", sparse_result.output)
+            yield {"type": "agent_status", "agent": "Sparse Retriever", "status": "running", "output": None}
+            try:
+                sparse_chunks = await self._retrieval.sparse_search(query, self._settings.sparse_top_k)
+                sparse_output = f"{len(sparse_chunks)} candidates retrieved"
+            except Exception as exc:
+                # Never block the chat pipeline on sparse/BM25 failures —
+                # dense results alone are enough for fusion + generation.
+                log_exception(logger, exc)
+                sparse_chunks = []
+                sparse_output = "0 candidates (sparse fallback)"
+            yield {
+                "type": "agent_status",
+                "agent": "Sparse Retriever",
+                "status": "complete",
+                "output": sparse_output,
+            }
 
-            yield self.fusion_agent.emit_status("running")
-            fused_result = await self.fusion_agent.run(
-                dense_results=dense_result.data,
-                sparse_results=sparse_result.data,
+            yield {"type": "agent_status", "agent": "Fusion Agent", "status": "running", "output": None}
+            fused_chunks = await self._retrieval.fuse(dense_chunks, sparse_chunks)
+            yield {
+                "type": "agent_status",
+                "agent": "Fusion Agent",
+                "status": "complete",
+                "output": f"{len(fused_chunks)} fused candidates",
+            }
+
+            yield {"type": "agent_status", "agent": "Reranker Agent", "status": "running", "output": None}
+            reranked_chunks = await self._retrieval.rerank_with_authority(
+                query, fused_chunks, self._settings.rerank_top_k
             )
-            yield self.fusion_agent.emit_status("complete", fused_result.output)
-
-            yield self.reranker_agent.emit_status("running")
-            reranked_result = await self.reranker_agent.run(
-                query=query, chunks=fused_result.data
-            )
-            yield self.reranker_agent.emit_status("complete", reranked_result.output)
+            yield {
+                "type": "agent_status",
+                "agent": "Reranker Agent",
+                "status": "complete",
+                "output": f"top {len(reranked_chunks)} selected",
+            }
 
             # 12. Track doc types of top chunks
-            for chunk in reranked_result.data or []:
+            for chunk in reranked_chunks or []:
                 doc_type = getattr(chunk, "doc_type", None)
                 if doc_type:
                     try:
@@ -487,7 +502,7 @@ class Orchestrator:
             last_faithfulness_verdict: Optional[str] = None
             async for event in generator.stream(
                 query,
-                reranked_result.data or [],
+                reranked_chunks or [],
                 history,
                 session_dict,
                 lab_context=lab_context,

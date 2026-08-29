@@ -20,8 +20,7 @@ from api.core.database import AsyncSessionLocal
 from api.main import app
 from api.services.handoff_service import STATE_HUMAN_ACTIVE, STATE_QUEUED
 from api.services.redis_service import RedisService
-from api.tools.redis_tools import get_redis_client
-from tests.conftest import make_conversation, make_token, make_user, unique_id
+from tests.conftest import get_redis_client, make_conversation, make_token, make_user, unique_id
 
 RECEIVE_TIMEOUT_SECONDS = 10
 

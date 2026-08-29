@@ -27,12 +27,20 @@ os.environ["DATABASE_PATH"] = _TEST_DB_PATH
 import pytest
 import pytest_asyncio
 
+from upstash_redis.asyncio import Redis
+
 from api.core.auth import create_access_token, hash_password
 from api.core.config import get_settings
 from api.core.database import AsyncSessionLocal, engine, init_db
 from api.models.db_models import Conversation, User
 from api.services.redis_service import RedisService
-from api.tools.redis_tools import get_redis_client
+
+
+def get_redis_client() -> Redis:
+    """Build the same Upstash Redis client dependencies.py wires into the app —
+    formerly imported from the now-deleted api.tools.redis_tools."""
+    settings = get_settings()
+    return Redis(url=settings.upstash_redis_rest_url, token=settings.upstash_redis_rest_token)
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
