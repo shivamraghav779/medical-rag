@@ -92,6 +92,13 @@ function css(primary: string): string {
       transform-origin: bottom right;
       animation: cr-slide .2s ease-out;
     }
+    /* The unconditional display:flex above is author CSS, which always
+       beats the browser's built-in [hidden] display:none UA rule regardless
+       of specificity — so without this, toggling the hidden attribute (the
+       fab/close-button click handler) never actually hides the panel; only
+       the fab's icon swaps, giving the illusion of a working toggle while
+       the panel stays visibly open underneath. */
+    .cr-panel[hidden] { display: none; }
     @keyframes cr-slide { from { opacity: 0; transform: translateY(12px) scale(.98);} to { opacity:1; transform:none;} }
     .cr-header {
       background: ${primary}; color: #fff; padding: 14px 16px;
