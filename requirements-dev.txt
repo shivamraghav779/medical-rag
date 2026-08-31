@@ -7,6 +7,10 @@
 ragas==0.1.10
 datasets==2.19.1
 
+# Offline ragval evaluation (scripts/ragval_eval.py) — pipeline-layer diagnosis
+# + clinical domain metrics
+ragval==0.0.1
+
 # Test suite
 pytest==8.3.4
 pytest-asyncio==0.24.0

@@ -234,3 +234,7 @@ logs/
 data/
 *.tsbuildinfo
 .env*
+
+# ragval eval run artifacts (regenerate with scripts/ragval_eval.py)
+scripts/ragval_results.json
+scripts/ragval_report.md

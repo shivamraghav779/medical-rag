@@ -1,0 +1,22 @@
+[
+  {
+    "question": "How is a new diagnosis of type 2 diabetes managed initially in adults according to NICE?",
+    "ground_truth": "NICE recommends starting with structured education, dietary and lifestyle advice, and offering standard-release metformin as first-line drug treatment, reinforcing lifestyle measures and monitoring HbA1c, with treatment intensified if HbA1c targets are not met.",
+    "category": "diabetes_management"
+  },
+  {
+    "question": "What HbA1c target does NICE recommend for adults with type 2 diabetes managed by lifestyle or a single drug not associated with hypoglycaemia?",
+    "ground_truth": "NICE recommends an HbA1c target of 48 mmol/mol (6.5%) for adults with type 2 diabetes managed either by lifestyle and diet, or by lifestyle and diet combined with a single drug not associated with hypoglycaemia.",
+    "category": "diabetes_management"
+  },
+  {
+    "question": "How should blood pressure be measured and confirmed when diagnosing hypertension in adults?",
+    "ground_truth": "If clinic blood pressure is 140/90 mmHg or higher, NICE advises offering ambulatory blood pressure monitoring (ABPM) to confirm the diagnosis, or home blood pressure monitoring (HBPM) if ABPM is unsuitable, while also assessing cardiovascular risk and looking for target organ damage.",
+    "category": "hypertension_diagnosis"
+  },
+  {
+    "question": "What are the first-line treatment options NICE recommends for adults with a new episode of less severe depression?",
+    "ground_truth": "For less severe depression NICE recommends not routinely offering antidepressants first-line unless that is the person's preference, and instead offering psychological or psychosocial interventions such as guided self-help, group CBT, group behavioural activation, individual CBT or behavioural activation, exercise, or counselling.",
+    "category": "depression_treatment"
+  }
+]
